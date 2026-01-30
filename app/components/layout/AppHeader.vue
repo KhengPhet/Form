@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter } from '#app'
 
 /* ================= STATE ================= */
 const userMenuOpen = ref(false)
+const loginOpen = ref(false)
 
 const loginForm = ref({
-  username: '',
+  email: '',
   password: ''
 })
 
 const userMenuRef = ref<HTMLElement | null>(null)
-const loginDialog = ref<HTMLDialogElement | null>(null)
 
 const router = useRouter()
 
@@ -28,31 +28,30 @@ const toggleUserMenu = () => {
   userMenuOpen.value = !userMenuOpen.value
 }
 
-const openLoginDialog = () => {
+const openLogin = () => {
   userMenuOpen.value = false
-  if (process.client) {
-    loginDialog.value?.showModal()
-  }
+  loginOpen.value = true
+  document.body.style.overflow = 'hidden'
 }
 
-const closeLoginDialog = () => {
-  loginDialog.value?.close()
+const closeLogin = () => {
+  loginOpen.value = false
+  document.body.style.overflow = ''
 }
 
 const submitLogin = () => {
-  console.log('LOGIN DATA:', loginForm.value)
-
-  // TODO: connect API here
-  closeLoginDialog()
+  console.log('LOGIN:', loginForm.value)
+  closeLogin()
 }
 
 const handleBooking = () => {
-  router.push('/booking')
+  router.push('/booking/Bookibg')
 }
 
 /* ================= CLICK OUTSIDE ================= */
 const handleClickOutside = (e: MouseEvent) => {
   if (
+    userMenuOpen.value &&
     userMenuRef.value &&
     !userMenuRef.value.contains(e.target as Node)
   ) {
@@ -105,19 +104,18 @@ onBeforeUnmount(() => {
       <!-- User -->
       <div class="relative flex items-center gap-3" ref="userMenuRef">
 
-        <!-- Booking button -->
+        <!-- Booking -->
         <button
           class="hidden sm:flex items-center gap-2
                  bg-gradient-to-r from-yellow-500 to-yellow-600
-                 hover:from-yellow-600 hover:to-yellow-700
                  text-gray-900 px-4 py-2.5 rounded-lg
-                 text-sm font-bold shadow-md transition"
+                 text-sm font-bold shadow-md"
           @click="handleBooking"
         >
           <span class="material-symbols-outlined text-base">
             calendar_month
           </span>
-          <span>ថ្ងៃរៀបការ</span>
+          ថ្ងៃរៀបការ
         </button>
 
         <!-- Avatar -->
@@ -137,7 +135,7 @@ onBeforeUnmount(() => {
           >
             <button
               class="w-full text-left px-4 py-2 hover:bg-gray-100"
-              @click="openLoginDialog"
+              @click="openLogin"
             >
               🔐 Login
             </button>
@@ -150,92 +148,90 @@ onBeforeUnmount(() => {
             </NuxtLink>
           </div>
         </transition>
-
       </div>
     </div>
   </header>
 
-  <!-- ================= LOGIN DIALOG ================= -->
-  <dialog
-    ref="loginDialog"
-    class="rounded-[36px] p-0 backdrop:bg-black/50"
-  >
+  <!-- ================= LOGIN MODAL ================= -->
+  <transition name="fade">
     <div
-      class="w-[340px] bg-gradient-to-br from-[#f6ebe4] to-[#fdf6f0]
-             rounded-[36px] shadow-2xl px-7 py-9 text-center relative"
+      v-if="loginOpen"
+      class="fixed inset-0 z-[100]
+             bg-black/50 backdrop-blur-sm
+             flex items-center justify-center px-4"
+      @click="closeLogin"
     >
-      <!-- Close -->
-      <button
-        class="absolute top-4 right-4 text-gray-400 hover:text-red-500"
-        @click="closeLoginDialog"
-      >
-        ✕
-      </button>
-
-      <!-- Icon -->
       <div
-        class="w-12 h-12 mx-auto mb-5
-               bg-yellow-400 rounded-full
-               flex items-center justify-center"
+        class="w-full max-w-md bg-white rounded-2xl
+               shadow-2xl p-8 relative"
+        @click.stop
       >
-        🌱
-      </div>
-
-      <!-- Title -->
-      <h1 class="text-xl font-bold text-gray-800">
-        ចូលប្រើប្រាស់គណនី<br />របស់អ្នក
-      </h1>
-
-      <div class="w-10 h-1 bg-yellow-400 mx-auto mt-4 mb-8 rounded-full"></div>
-
-      <!-- Form -->
-      <form class="space-y-5" @submit.prevent="submitLogin">
-        <div class="text-left">
-          <label class="text-sm font-semibold text-gray-600">
-            ឈ្មោះអ្នកប្រើ
-          </label>
-          <input
-            v-model="loginForm.username"
-            type="text"
-            class="w-full mt-2 rounded-xl bg-white border
-                   px-4 py-3 focus:ring-2
-                   focus:ring-yellow-400 outline-none"
-            placeholder="បញ្ចូលឈ្មោះអ្នកប្រើ"
-          />
-        </div>
-
-        <div class="text-left">
-          <label class="text-sm font-semibold text-gray-600">
-            ពាក្យសម្ងាត់
-          </label>
-          <input
-            v-model="loginForm.password"
-            type="password"
-            class="w-full mt-2 rounded-xl bg-white border
-                   px-4 py-3 focus:ring-2
-                   focus:ring-yellow-400 outline-none"
-            placeholder="********"
-          />
-        </div>
-
+        <!-- Close -->
         <button
-          type="submit"
-          class="w-full py-3 bg-yellow-400
-                 hover:bg-yellow-500 text-gray-900
-                 font-bold rounded-xl transition"
+          class="absolute top-4 right-4 text-gray-400 hover:text-red-500"
+          @click="closeLogin"
         >
-          ចូលគណនី →
+          <span class="material-symbols-outlined">close</span>
         </button>
-      </form>
 
-      <p class="text-sm text-gray-600 mt-6">
-        មិនទាន់មានគណនី?
-        <NuxtLink to="/register" class="text-yellow-600 font-bold">
-          ចុះឈ្មោះថ្មី
-        </NuxtLink>
-      </p>
+        <!-- Title -->
+        <div class="text-center mb-6">
+          <span class="material-symbols-outlined text-4xl text-yellow-500">
+            lock
+          </span>
+          <h2 class="text-2xl font-bold mt-2">ចូលគណនី</h2>
+          <p class="text-sm text-gray-500">
+            សូមបញ្ចូលព័ត៌មានគណនី
+          </p>
+        </div>
+
+        <!-- Form -->
+        <form class="space-y-5" @submit.prevent="submitLogin">
+          <div>
+            <label class="text-sm font-semibold">
+              អ៊ីមែល / ទូរស័ព្ទ
+            </label>
+            <input
+              v-model="loginForm.email"
+              type="text"
+              class="w-full mt-2 px-4 py-3 border rounded-xl
+                     focus:ring-2 focus:ring-yellow-500 outline-none"
+              placeholder="example@email.com"
+            />
+          </div>
+
+          <div>
+            <label class="text-sm font-semibold">
+              ពាក្យសម្ងាត់
+            </label>
+            <input
+              v-model="loginForm.password"
+              type="password"
+              class="w-full mt-2 px-4 py-3 border rounded-xl
+                     focus:ring-2 focus:ring-yellow-500 outline-none"
+              placeholder="********"
+            />
+          </div>
+
+          <button
+            type="submit"
+            class="w-full py-3 bg-gradient-to-r
+                   from-yellow-500 to-yellow-600
+                   text-black font-bold rounded-xl shadow-lg"
+          >
+            🔐 Login
+          </button>
+
+          <p class="text-center text-sm text-gray-500">
+            មិនទាន់មានគណនី?
+            <NuxtLink to="/register" class="text-yellow-600 font-bold">
+              បង្កើតថ្មី
+            </NuxtLink>
+          </p>
+        </form>
+      </div>
     </div>
-  </dialog>
+  </transition>
 </template>
 
 <style scoped>
