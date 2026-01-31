@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
 
-/* =====================
-  State
-===================== */
+/* ===================== State ===================== */
 const form = reactive({
   groom: '',
   bride: '',
@@ -17,9 +15,7 @@ const form = reactive({
   images: [] as File[]
 })
 
-/* =====================
-  File Upload
-===================== */
+/* ===================== File Upload ===================== */
 const fileInput = ref<HTMLInputElement | null>(null)
 
 const openFilePicker = () => {
@@ -32,9 +28,7 @@ const handleFileChange = (event: Event) => {
   form.images = Array.from(target.files)
 }
 
-/* =====================
-  Submit
-===================== */
+/* ===================== Submit ===================== */
 const submitForm = () => {
   const payload = {
     ...form,
