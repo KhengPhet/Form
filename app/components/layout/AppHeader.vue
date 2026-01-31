@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'
-import { useRouter } from '#app'
+import { useRouter } from 'vue-router'
 
 /* ================= STATE ================= */
 const userMenuOpen = ref(false)
