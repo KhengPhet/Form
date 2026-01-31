@@ -23,6 +23,7 @@ const navLinks = [
   { id: 4, label: 'ទំនាក់ទំនង', to: '/contact' }
 ]
 
+
 /* ================= METHODS ================= */
 const toggleUserMenu = () => {
   userMenuOpen.value = !userMenuOpen.value
